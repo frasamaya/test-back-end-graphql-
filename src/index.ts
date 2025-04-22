@@ -6,7 +6,7 @@ import { resolvers } from './resolvers';
 const server = new ApolloServer({ typeDefs, resolvers });
 
 startStandaloneServer(server, {
-  listen: { port: 4000 },
+  listen: { port: 4444 },
 }).then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
 });
