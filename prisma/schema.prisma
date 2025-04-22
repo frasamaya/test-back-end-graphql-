@@ -20,6 +20,7 @@ model Proposal {
   steps     Step[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 }
 
 model Day {
@@ -32,6 +33,7 @@ model Day {
   stepId     Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
 }
 
 model Step {
@@ -43,4 +45,5 @@ model Step {
   days       Day[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
 }

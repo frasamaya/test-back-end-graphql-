@@ -48,13 +48,30 @@ export const typeDefs = `#graphql
     days: [DayInput!]!
   }
 
+  input Filter {
+    name: String
+    createdAt: DateTime
+    updatedAt: DateTime
+  }
+
+  enum SortOrder {
+    ASC
+    DESC
+  }
+
+  input Sort {
+    field: String!
+    order: SortOrder!
+  }
+
   type Query {
-    proposals: [Proposal!]!
+    proposals(pageSize: Int, cursor: Int, filter: Filter, sort: Sort): [Proposal!]!
     proposal(id: Int!): Proposal
   }
 
   type Mutation {
     createProposal(data: ProposalInput!): Proposal!
+    updateProposal(id: Int!, data: ProposalInput!): Proposal!
     deleteProposal(id: Int!): Proposal!
   }
 `;
