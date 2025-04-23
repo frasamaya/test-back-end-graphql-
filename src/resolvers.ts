@@ -262,6 +262,10 @@ export const resolvers = {
           proposal: { connect: { id: data.proposalId } },
           step: { connect: { id: data.stepId } },
         },
+        include:{
+          step: true,
+          proposal: true
+        }
       }),
     updateDay: async (_: any, { id, data }: { id: number; data: any }) =>
       prisma.day.update({
@@ -271,6 +275,10 @@ export const resolvers = {
           order: data.order,
           stepId: data.stepId,
         },
+        include:{
+          step: true,
+          proposal: true
+        }
       }),
     deleteDay: async (_: any, { id }: { id: number }) =>
       prisma.day.delete({
