@@ -43,7 +43,6 @@ Create a `.env` file in the root directory and add the following:
 
 ```
 DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
-PORT=4000
 ```
 
 > Replace `username`, `password`, `localhost`, `5432`, and `database_name` with your actual PostgreSQL credentials.
@@ -76,14 +75,14 @@ This will apply the migrations and create the necessary tables.
 npm run dev
 ```
 
-> The server will run on `http://localhost:4000` (or your custom port in `.env`).
+> The server will run on `http://localhost:444` (or your custom port in `.env`).
 
 ### 2. Access the GraphQL Playground
 
 Open your browser and go to:
 
 ```
-http://localhost:4000/graphql
+http://localhost:4444
 ```
 
 Use the Playground to test and explore your GraphQL API.
@@ -136,7 +135,7 @@ test-back-end-graphql/
 ├── prisma/             # Prisma schema and migrations
 ├── src/
 │   ├── resolvers/      # GraphQL resolvers
-│   ├── schema/         # GraphQL schema definitions
+│   ├── schema.ts         # GraphQL schema definitions
 │   └── index.ts        # Application entry point
 ├── .env                # Environment configuration
 ├── package.json
@@ -155,12 +154,6 @@ test-back-end-graphql/
 ### ⚠️ Prisma Client Not Found
 
 - Run `npx prisma generate` to regenerate the client
-
-### 🔁 Port Already in Use
-
-- Change the `PORT` value in the `.env` file to a free port
-
----
 
 ## 📄 License
 
