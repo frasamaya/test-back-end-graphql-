@@ -1,5 +1,5 @@
-import { createTestServer } from '../test-utils';
-import mockPrisma from '../../__mocks__/prisma';
+import { createTestServer } from "../test-utils";
+import mockPrisma from "../../__mocks__/prisma";
 
 const GET_DAY = `
   query GetDay($id: Int!) {
@@ -19,12 +19,12 @@ interface GetDayResponse {
   } | null;
 }
 
-describe('Query: day', () => {
-  it('should return a single day by ID', async () => {
+describe("Query: day", () => {
+  it("should return a single day by ID", async () => {
     // Mock Prisma response
     mockPrisma.day.findUnique.mockResolvedValueOnce({
       id: 1,
-      name: 'Day 1',
+      name: "Day 1",
       order: 1,
     });
 
@@ -35,12 +35,12 @@ describe('Query: day', () => {
       variables: { id: 1 },
     });
 
-    if (response.body?.kind === 'single') {
+    if (response.body?.kind === "single") {
       expect(response.body.singleResult.errors).toBeUndefined();
     }
   });
 
-  it('should return null if the day does not exist', async () => {
+  it("should return null if the day does not exist", async () => {
     // Mock Prisma response
     mockPrisma.day.findUnique.mockResolvedValueOnce(null);
 
@@ -51,7 +51,7 @@ describe('Query: day', () => {
       variables: { id: 999 },
     });
 
-    if (response.body?.kind === 'single') {
+    if (response.body?.kind === "single") {
       expect(response.body.singleResult.errors).toBeUndefined();
       expect(response.body.singleResult.data?.day).toBeNull();
     }

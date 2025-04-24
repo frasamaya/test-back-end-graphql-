@@ -1,5 +1,5 @@
-import { createTestServer } from '../test-utils';
-import mockPrisma from '../../__mocks__/prisma';
+import { createTestServer } from "../test-utils";
+import mockPrisma from "../../__mocks__/prisma";
 
 const GET_PROPOSAL = `
   query GetProposal($id: Int!) {
@@ -19,13 +19,13 @@ interface GetProposalResponse {
   } | null;
 }
 
-describe('Query: proposal', () => {
-  it('should return a single proposal by ID', async () => {
+describe("Query: proposal", () => {
+  it("should return a single proposal by ID", async () => {
     // Mock Prisma response
     mockPrisma.proposal.findUnique.mockResolvedValueOnce({
       id: 1,
-      name: 'Proposal 1',
-      createdAt: '2025-04-22T08:48:33.260Z',
+      name: "Proposal 1",
+      createdAt: "2025-04-22T08:48:33.260Z",
     });
 
     const server = createTestServer();
@@ -35,12 +35,12 @@ describe('Query: proposal', () => {
       variables: { id: 5 },
     });
 
-    if (response.body?.kind === 'single') {
+    if (response.body?.kind === "single") {
       expect(response.body.singleResult.errors).toBeUndefined();
     }
   });
 
-  it('should return null if the proposal does not exist', async () => {
+  it("should return null if the proposal does not exist", async () => {
     // Mock Prisma response
     mockPrisma.proposal.findUnique.mockResolvedValueOnce(null);
 
@@ -51,7 +51,7 @@ describe('Query: proposal', () => {
       variables: { id: 999 },
     });
 
-    if (response.body?.kind === 'single') {
+    if (response.body?.kind === "single") {
       expect(response.body.singleResult.errors).toBeUndefined();
       expect(response.body.singleResult.data?.proposal).toBeNull();
     }

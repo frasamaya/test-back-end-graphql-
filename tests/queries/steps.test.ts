@@ -1,5 +1,5 @@
-import { createTestServer } from '../test-utils';
-import mockPrisma from '../../__mocks__/prisma';
+import { createTestServer } from "../test-utils";
+import mockPrisma from "../../__mocks__/prisma";
 
 const GET_STEPS = `
   query GetSteps($pageSize: Int, $cursor: Int) {
@@ -31,12 +31,12 @@ interface GetStepsResponse {
   };
 }
 
-describe('Query: steps', () => {
-  it('should return a list of steps with pagination info', async () => {
+describe("Query: steps", () => {
+  it("should return a list of steps with pagination info", async () => {
     // Mock Prisma response
     mockPrisma.step.findMany.mockResolvedValueOnce([
-      { id: 1, name: 'Step 1', order: 1 },
-      { id: 2, name: 'Step 2', order: 2 },
+      { id: 1, name: "Step 1", order: 1 },
+      { id: 2, name: "Step 2", order: 2 },
     ]);
 
     const server = createTestServer();
@@ -46,11 +46,13 @@ describe('Query: steps', () => {
       variables: { pageSize: 10, cursor: null },
     });
 
-    if (response.body?.kind === 'single') {
+    if (response.body?.kind === "single") {
       expect(response.body.singleResult.errors).toBeUndefined();
       expect(response.body.singleResult.data?.steps).toBeDefined();
       //expect(response.body.singleResult.data?.steps?.nodes).toHaveLength(2);
-      expect(response.body.singleResult.data?.steps.pageInfo.hasNextPage).toBe(false);
+      expect(response.body.singleResult.data?.steps.pageInfo.hasNextPage).toBe(
+        false,
+      );
     }
   });
 });

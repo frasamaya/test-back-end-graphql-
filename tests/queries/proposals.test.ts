@@ -1,5 +1,5 @@
-import { createTestServer } from '../test-utils';
-import mockPrisma from '../../__mocks__/prisma';
+import { createTestServer } from "../test-utils";
+import mockPrisma from "../../__mocks__/prisma";
 
 const GET_PROPOSALS = `
   query GetProposals($pageSize: Int, $cursor: Int) {
@@ -31,12 +31,12 @@ interface GetProposalsResponse {
   };
 }
 
-describe('Query: proposals', () => {
-  it('should return a list of proposals with pagination info', async () => {
+describe("Query: proposals", () => {
+  it("should return a list of proposals with pagination info", async () => {
     // Mock Prisma response
     mockPrisma.proposal.findMany.mockResolvedValueOnce([
-      { id: 1, name: 'Proposal 1', createdAt: '2025-04-22T12:00:00Z' },
-      { id: 2, name: 'Proposal 2', createdAt: '2025-04-21T12:00:00Z' },
+      { id: 1, name: "Proposal 1", createdAt: "2025-04-22T12:00:00Z" },
+      { id: 2, name: "Proposal 2", createdAt: "2025-04-21T12:00:00Z" },
     ]);
 
     const server = createTestServer();
@@ -46,11 +46,13 @@ describe('Query: proposals', () => {
       variables: { pageSize: 10, cursor: null },
     });
 
-    if (response.body?.kind === 'single') {
+    if (response.body?.kind === "single") {
       expect(response.body.singleResult.errors).toBeUndefined();
       expect(response.body.singleResult.data?.proposals).toBeDefined();
       //expect(response.body.singleResult.data?.proposals?.nodes).toHaveLength(2);
-      expect(response.body.singleResult.data?.proposals.pageInfo.hasNextPage).toBe(false);
+      expect(
+        response.body.singleResult.data?.proposals.pageInfo.hasNextPage,
+      ).toBe(false);
     }
   });
 });

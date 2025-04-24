@@ -1,5 +1,5 @@
-import { createTestServer } from '../test-utils';
-import mockPrisma from '../../__mocks__/prisma';
+import { createTestServer } from "../test-utils";
+import mockPrisma from "../../__mocks__/prisma";
 
 const GET_DAYS = `
   query GetDays($pageSize: Int, $cursor: Int) {
@@ -31,12 +31,12 @@ interface GetDaysResponse {
   };
 }
 
-describe('Query: days', () => {
-  it('should return a list of days with pagination info', async () => {
+describe("Query: days", () => {
+  it("should return a list of days with pagination info", async () => {
     // Mock Prisma response
     mockPrisma.day.findMany.mockResolvedValueOnce([
-      { id: 1, name: 'Day 1', order: 1 },
-      { id: 2, name: 'Day 2', order: 2 },
+      { id: 1, name: "Day 1", order: 1 },
+      { id: 2, name: "Day 2", order: 2 },
     ]);
 
     const server = createTestServer();
@@ -46,11 +46,13 @@ describe('Query: days', () => {
       variables: { pageSize: 10, cursor: null },
     });
 
-    if (response.body?.kind === 'single') {
+    if (response.body?.kind === "single") {
       expect(response.body.singleResult.errors).toBeUndefined();
       expect(response.body.singleResult.data?.days).toBeDefined();
       //expect(response.body.singleResult.data?.days?.nodes).toHaveLength(2);
-      expect(response.body.singleResult.data?.days.pageInfo.hasNextPage).toBe(false);
+      expect(response.body.singleResult.data?.days.pageInfo.hasNextPage).toBe(
+        false,
+      );
     }
   });
 });
