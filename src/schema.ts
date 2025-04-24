@@ -4,8 +4,8 @@ export const typeDefs = `#graphql
   type Proposal {
     id: Int!
     name: String!
-    days: [Day!]!
-    steps: [Step!]!
+    days: [Day]
+    steps: [Step]
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -28,7 +28,7 @@ export const typeDefs = `#graphql
     name: String!
     proposalId: Int!
     proposal: Proposal!
-    days: [Day!]!
+    days: [Day]
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -36,18 +36,20 @@ export const typeDefs = `#graphql
   input StepInput {
     order: Int!
     name: String!
+    proposalId: Int!
   }
 
   input DayInput {
     order: Int!
     name: String!
     stepId: Int!
+    proposalId: Int!
   }
 
   input ProposalInput {
     name: String!
-    steps: [StepInput!]!
-    days: [DayInput!]!
+    steps: [StepInput]
+    days: [DayInput]
   }
 
   input Filter {
@@ -106,7 +108,7 @@ export const typeDefs = `#graphql
 
   type PageInfo {
     hasNextPage: Boolean!
-    endCursor: String
+    endCursor: Int
   }
 
   type ProposalConnection {

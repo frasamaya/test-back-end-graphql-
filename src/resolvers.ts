@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const resolvers = {
@@ -10,27 +10,27 @@ export const resolvers = {
         cursor,
         filter,
         sort,
-      }: {
-        pageSize?: number;
-        cursor?: string;
-        filter?: Prisma.ProposalWhereInput;
-        sort?: {
-          field: keyof Prisma.ProposalOrderByWithRelationInput;
-          order: "ASC" | "DESC";
-        };
-      },
+      }: { pageSize?: number; cursor?: string; filter?: any; sort?: any },
     ) => {
       const take = pageSize + 1; // Fetch one extra to check for next page
       const proposals = await prisma.proposal.findMany({
         where: {
           deletedAt: null,
-          ...filter,
+          ...(filter?.name && { name: { contains: filter.name } }),
+          ...(filter?.stepId && { steps: { some: { id: filter.stepId } } }),
         },
         include: {
-          days: true,
+          days: {
+            orderBy: {
+              order: "asc",
+            },
+          },
           steps: {
             include: {
               days: true,
+            },
+            orderBy: {
+              order: "asc",
             },
           },
         },
@@ -51,9 +51,7 @@ export const resolvers = {
         pageInfo: {
           hasNextPage,
           endCursor:
-            proposals.length > 0
-              ? proposals[proposals.length - 1].id.toString()
-              : null,
+            proposals.length > 0 ? proposals[proposals.length - 1].id : null,
         },
       };
     },
@@ -61,10 +59,17 @@ export const resolvers = {
       await prisma.proposal.findUnique({
         where: { id, deletedAt: null },
         include: {
-          days: true,
+          days: {
+            orderBy: {
+              order: "asc",
+            },
+          },
           steps: {
             include: {
               days: true,
+            },
+            orderBy: {
+              order: "asc",
             },
           },
         },
@@ -76,27 +81,30 @@ export const resolvers = {
         cursor,
         filter,
         sort,
-      }: {
-        pageSize?: number;
-        cursor?: string;
-        filter?: Prisma.StepWhereInput;
-        sort?: {
-          field: keyof Prisma.StepOrderByWithRelationInput;
-          order: "ASC" | "DESC";
-        };
-      },
+      }: { pageSize?: number; cursor?: string; filter?: any; sort?: any },
     ) => {
       const take = pageSize + 1; // Fetch one extra to check for next page
       const steps = await prisma.step.findMany({
-        where: filter,
+        where: {
+          ...(filter?.name && { name: { contains: filter.name } }),
+          ...(filter?.proposalId && { proposalId: filter.proposalId }),
+        },
         include: {
-          days: true,
+          days: {
+            orderBy: {
+              order: "asc",
+            },
+          },
           proposal: {
             include: {
               days: true,
               steps: {
                 include: {
-                  days: true,
+                  days: {
+                    orderBy: {
+                      order: "asc",
+                    },
+                  },
                 },
               },
             },
@@ -118,8 +126,7 @@ export const resolvers = {
         nodes: steps,
         pageInfo: {
           hasNextPage,
-          endCursor:
-            steps.length > 0 ? steps[steps.length - 1].id.toString() : null,
+          endCursor: steps.length > 0 ? steps[steps.length - 1].id : null,
         },
       };
     },
@@ -127,13 +134,25 @@ export const resolvers = {
       await prisma.step.findUnique({
         where: { id },
         include: {
-          days: true,
+          days: {
+            orderBy: {
+              order: "asc",
+            },
+          },
           proposal: {
             include: {
-              days: true,
+              days: {
+                orderBy: {
+                  order: "asc",
+                },
+              },
               steps: {
                 include: {
-                  days: true,
+                  days: {
+                    orderBy: {
+                      order: "asc",
+                    },
+                  },
                 },
               },
             },
@@ -147,19 +166,14 @@ export const resolvers = {
         cursor,
         filter,
         sort,
-      }: {
-        pageSize?: number;
-        cursor?: string;
-        filter?: Prisma.DayWhereInput;
-        sort?: {
-          field: keyof Prisma.DayOrderByWithRelationInput;
-          order: "ASC" | "DESC";
-        };
-      },
+      }: { pageSize?: number; cursor?: string; filter?: any; sort?: any },
     ) => {
       const take = pageSize + 1; // Fetch one extra to check for next page
       const days = await prisma.day.findMany({
-        where: filter,
+        where: {
+          ...(filter?.name && { name: { contains: filter.name } }),
+          ...(filter?.stepId && { stepId: filter.stepId }),
+        },
         include: {
           step: true,
           proposal: true,
@@ -180,8 +194,7 @@ export const resolvers = {
         nodes: days,
         pageInfo: {
           hasNextPage,
-          endCursor:
-            days.length > 0 ? days[days.length - 1].id.toString() : null,
+          endCursor: days.length > 0 ? days[days.length - 1].id : null,
         },
       };
     },
@@ -195,12 +208,28 @@ export const resolvers = {
       }),
   },
   Mutation: {
-    createProposal: async (
-      _: unknown,
-      { data }: { data: Prisma.ProposalCreateInput },
-    ) =>
+    createProposal: async (_: unknown, { data }: { data: any }) =>
       prisma.proposal.create({
-        data,
+        data: {
+          name: data.name,
+          ...(data.steps && {
+            steps: {
+              create: data.steps.map(({ order, name }: any) => ({
+                order,
+                name,
+              })),
+            },
+          }),
+          ...(data.days && {
+            days: {
+              create: data.days.map(({ order, name, stepId }: any) => ({
+                order,
+                name,
+                stepId,
+              })),
+            },
+          }),
+        },
         include: {
           days: true,
           steps: {
@@ -212,11 +241,31 @@ export const resolvers = {
       }),
     updateProposal: async (
       _: unknown,
-      { id, data }: { id: number; data: Prisma.ProposalUpdateInput },
+      { id, data }: { id: number; data: any },
     ) =>
       prisma.proposal.update({
         where: { id },
-        data,
+        data: {
+          name: data.name,
+          ...(data.steps && {
+            steps: {
+              upsert: data.steps.map(({ id, order, name }: any) => ({
+                where: { id },
+                update: { order, name },
+                create: { order, name },
+              })),
+            },
+          }),
+          ...(data.days && {
+            days: {
+              upsert: data.days.map(({ id, order, name, stepId }: any) => ({
+                where: { id },
+                update: { order, name, stepId },
+                create: { order, name, stepId },
+              })),
+            },
+          }),
+        },
         include: {
           days: true,
           steps: {
@@ -239,57 +288,124 @@ export const resolvers = {
           },
         },
       }),
-    createStep: async (
-      _: unknown,
-      { data }: { data: Prisma.StepCreateInput },
-    ) =>
+    createStep: async (_: unknown, { data }: { data: any }) =>
       prisma.step.create({
-        data,
+        data: {
+          name: data.name,
+          order: data.order,
+          proposalId: data.proposalId,
+          ...(data.days && {
+            days: {
+              create: data.days.map(({ order, name }: any) => ({
+                order,
+                name,
+              })),
+            },
+          }),
+        },
         include: {
           days: true,
         },
       }),
-    updateStep: async (
-      _: unknown,
-      { id, data }: { id: number; data: Prisma.StepUpdateInput },
-    ) =>
+    updateStep: async (_: unknown, { id, data }: { id: number; data: any }) =>
       prisma.step.update({
         where: { id },
-        data,
+        data: {
+          name: data.name,
+          order: data.order,
+          ...(data.days && {
+            days: {
+              upsert: data.days.map(({ id, order, name }: any) => ({
+                where: { id },
+                update: { order, name },
+                create: { order, name },
+              })),
+            },
+          }),
+        },
         include: {
           days: true,
         },
       }),
-    deleteStep: async (_: unknown, { id }: { id: number }) =>
-      prisma.step.delete({
+    deleteStep: async (_: unknown, { id }: { id: number }) => {
+      const deletedStep = await prisma.step.delete({
         where: { id },
         include: {
           days: true,
         },
-      }),
-    createDay: async (_: unknown, { data }: { data: Prisma.DayCreateInput }) =>
+      });
+
+      // Reorder remaining steps
+      await prisma.step.updateMany({
+        where: {
+          proposalId: deletedStep.proposalId,
+          order: {
+            gt: deletedStep.order,
+          },
+        },
+        data: {
+          order: {
+            decrement: 1,
+          },
+        },
+      });
+
+      return deletedStep;
+    },
+    createDay: async (_: unknown, { data }: { data: any }) =>
       prisma.day.create({
-        data,
+        data: {
+          name: data.name,
+          order: data.order,
+          proposal: { connect: { id: data.proposalId } },
+          step: { connect: { id: data.stepId } },
+        },
         include: {
           step: true,
           proposal: true,
         },
       }),
-    updateDay: async (
-      _: unknown,
-      { id, data }: { id: number; data: Prisma.DayUpdateInput },
-    ) =>
+    updateDay: async (_: unknown, { id, data }: { id: number; data: any }) =>
       prisma.day.update({
         where: { id },
-        data,
+        data: {
+          name: data.name,
+          order: data.order,
+          stepId: data.stepId,
+        },
         include: {
           step: true,
           proposal: true,
         },
       }),
-    deleteDay: async (_: unknown, { id }: { id: number }) =>
-      prisma.day.delete({
+    deleteDay: async (_: unknown, { id }: { id: number }) => {
+      const deletedDay = await prisma.day.delete({
         where: { id },
-      }),
+        include: {
+          step: true,
+          proposal: true,
+        },
+      });
+
+      // Reorder remaining days
+      await prisma.day.updateMany({
+        where: {
+          OR: [
+            { stepId: deletedDay.stepId },
+            { proposalId: deletedDay.proposalId },
+          ],
+          order: {
+            gt: deletedDay.order,
+          },
+        },
+        data: {
+          order: {
+            decrement: 1,
+          },
+        },
+      });
+
+      return deletedDay;
+    },
   },
 };
