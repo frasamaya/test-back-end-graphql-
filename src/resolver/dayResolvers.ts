@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import prisma from "../prisma";
 
 export const dayResolvers = {
   Query: {
@@ -10,7 +9,7 @@ export const dayResolvers = {
         cursor,
         filter,
         sort,
-      }: { pageSize?: number; cursor?: string; filter?: any; sort?: any },
+      }: { pageSize?: number; cursor?: number; filter?: any; sort?: any },
     ) => {
       const take = pageSize + 1; // Fetch one extra to check for next page
       const days = await prisma.day.findMany({
@@ -28,7 +27,7 @@ export const dayResolvers = {
             }
           : { order: "asc" },
         take,
-        ...(cursor && { skip: 1, cursor: { id: parseInt(cursor, 10) } }),
+        ...(cursor && { skip: 1, cursor: { id: cursor } }),
       });
 
       const hasNextPage = days.length > pageSize;

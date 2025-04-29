@@ -6,7 +6,7 @@
     "lint": "eslint . --ext .ts",
     "test": "jest",
     "compile": "tsc",
-    "dev": "nodemon -r ts-node/register ./src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --debug ./src/index.ts",
     "start": "npm run test && npm run compile && node ./dist/index.js",
     "format": "prettier --write ."
   },
@@ -28,7 +28,6 @@
     "@typescript-eslint/parser": "^8.31.0",
     "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.1.2",
-    "eslint-plugin-graphql": "^4.0.0",
     "eslint-plugin-json": "^4.0.1",
     "eslint-plugin-jsonc": "^2.20.0",
     "eslint-plugin-markdown": "^5.1.0",
